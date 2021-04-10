@@ -1,19 +1,13 @@
-
-
-
 #include <JC_Button.h>
-
 #include <TinyI2CMaster.h>
-
 #include <Tiny4kOLED.h>
 
 int mins = 0;  //min
-  int hrs = 0;   //hour
-  int wkdy = 0;  //weekday
-  int dy= 0;    //monthday
-  int mth = 0;
-  int yr = 0;   //year
-
+int hrs = 0;   //hour
+int wkdy = 0;  //weekday
+int dy= 0;    //monthday
+int mth = 0;
+int yr = 0;   //year
 
 const int RTCaddress=0x68;
 
@@ -39,62 +33,54 @@ void SetClock (int hr, int mi) { //comment out dates after first upload
   TinyI2C.write(0);
   TinyI2C.write(mi);
   TinyI2C.write(hr);
-    TinyI2C.write(1); //day of week Mon-Sun -> 1-7 Datasheet: Day
-    TinyI2C.write(0x29); // day month 01-31                   Date
-    TinyI2C.write(0x12); //month    01-12                     Month
-    TinyI2C.write(0x20); //year        00-99                  Year
+  TinyI2C.write(1); //day of week Mon-Sun -> 1-7 Datasheet: Day
+  TinyI2C.write(0x29); // day month 01-31                   Date
+  TinyI2C.write(0x12); //month    01-12                     Month
+  TinyI2C.write(0x20); //year        00-99                  Year
   TinyI2C.stop();
 }
 
 
 
 
-void setup() {
-   
-//initialize button objects
+void setup() {  
+  //initialize button objects
   btn1.begin();
   btn2.begin();
-
-
-  
+  // start OLED
   oled.begin();
   oled.setFont(FONT8X16);
   // Clear the memory before turning on the display
   oled.clear();
   // Turn on the display
   oled.on();
-// Switch the half of RAM that we are writing to, to be the half that is non currently displayed
+  // Switch the half of RAM that we are writing to, to be the half that is non currently displayed
   oled.switchRenderFrame();
-  
-  
-  
   SetClock(0x12, 0x00); //writing to it in HEX
 
 }
 
 void loop() {
 
-
-
-
-
   if (showTime==1){/////////////////////////////////////////////////////////--------------------SHOW TIME//////////////////////
 // Read the time from the RTC
-  TinyI2C.start(RTCaddress, 0);
-  TinyI2C.write(1);
-  TinyI2C.restart(RTCaddress, 6);
-   mins = TinyI2C.read();  //min
-   hrs = TinyI2C.read();   //hour
-   wkdy = TinyI2C.read();  //weekday
-   dy= TinyI2C.read();    //monthday
-   mth = TinyI2C.read();  //month
-   yr = TinyI2C.read();   //year
-  TinyI2C.stop();
+    TinyI2C.start(RTCaddress, 0);
+    TinyI2C.write(1);
+    TinyI2C.restart(RTCaddress, 6);
+    mins = TinyI2C.read();  //min
+    hrs = TinyI2C.read();   //hour
+    wkdy = TinyI2C.read();  //weekday
+    dy= TinyI2C.read();    //monthday
+    mth = TinyI2C.read();  //month
+    yr = TinyI2C.read();   //year
+    TinyI2C.stop();
   }
-// read the buttons
-    btn1.read();
-    btn2.read();
-
+  
+  
+  // read the buttons
+  btn1.read();
+  btn2.read();
+  
   //button logic
   if (btn1.wasPressed()){  //nums have to be set to 0x10 after 0x09 since
                             //0x09+0x01=0x0A =/= 0x10
@@ -105,27 +91,24 @@ void loop() {
    if (newhours>0x23) //if higher than max
    SetClock(0,mins);
    else if (newhours==0x0A || newhours==0x1A){ //add additional correction of 0x06 
-   newhours+=0x06;
-   SetClock(newhours,mins);}
-   
-   else
-    SetClock(newhours, mins);
-  }
+     newhours+=0x06;
+     SetClock(newhours,mins);}
+     else
+       SetClock(newhours, mins);
+   }
   }
   if (btn2.wasPressed()){ //same correction needed for 09 19 29 39 49 
-     timepressed=millis(); //store current time
-     keypress+=1;
-     if (keypress>3){
-    int newminutes=mins+0x01;
-    if (newminutes>0x59)
-      SetClock(hrs,0);
-     else if (newminutes==0x0A || newminutes==0x1A || newminutes==0x2A || newminutes==0x3A
-     || newminutes==0x4A){
-      newminutes+=0x06;
-   SetClock(hrs,newminutes);}
-        
-    else
-     SetClock(hrs, newminutes);
+    timepressed=millis(); //store current time
+    keypress+=1;
+    if (keypress>3){
+      int newminutes=mins+0x01;
+      if (newminutes>0x59)
+        SetClock(hrs,0);
+      else if (newminutes==0x0A || newminutes==0x1A || newminutes==0x2A || newminutes==0x3A|| newminutes==0x4A){
+        newminutes+=0x06;
+        SetClock(hrs,newminutes);}
+      else
+        SetClock(hrs, newminutes);
      }
   }
 
@@ -216,10 +199,6 @@ void loop() {
   oled.print(F("/"));
   oled.print(yr,HEX);
   // delay(1000);
- 
-  
-
-
 
   // Swap which half of RAM is being written to, and which half is being displayed.
   // This is equivalent to calling both switchRenderFrame and switchDisplayFrame.
@@ -236,8 +215,6 @@ if (timepassed-timepressed>2000) //wait 2 seconds and then reset keypress count 
 
 
 void displayTime(){
-
-
   if (keypress>0){
   oled.on();
   showTime=1;}
@@ -245,7 +222,4 @@ void displayTime(){
   oled.off();
   showTime=0;
   }
-
-
-  
 }
