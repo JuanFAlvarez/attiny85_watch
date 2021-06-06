@@ -1,6 +1,6 @@
 # attiny85_watch
 
 
-![schematic](/wiring/circuitschem.PNG)
+![schematic](/wiring/circuit_schem.PNG)
 
 ![wiring](/wiring/wiringschem.PNG)
